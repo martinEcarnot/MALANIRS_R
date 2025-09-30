@@ -1,7 +1,7 @@
 library(spectrolab)
 library(rchemo)
 library(nirsextra)
-source("~/Documents/INRA/Projets/MalaNIRS_Mais/ring_test/PDS.R")
+# source("~/Documents/INRA/Projets/MalaNIRS_Mais/ring_test/PDS.R")
 
 # # Commande bash pour lister les fichiers
 # cd /home/ecarnot/Documents/INRA/Projets/MalaNIRS_Mais/ring_test/
@@ -10,15 +10,6 @@ source("~/Documents/INRA/Projets/MalaNIRS_Mais/ring_test/PDS.R")
 # grep "MRS" list_done_Naturaspec.txt | awk '{num=substr($0, length($0)-2); print num, $0}' | sort -n | cut -d' ' -f2- > list_done_Naturaspec_MRS.txt
 # grep -v -e "MLD" -e "MRS" list_done_Naturaspec.txt > list_done_Naturaspec_autres.txt
 
-# Fonction pour tracer courbes 
-plotspMALA <-function(x1,x2,unit,n1,n2,tit=""){
-  x=rbind(x1,x2)
-  col=rep("red",nrow(x))
-  col[1:nrow(x1)]="black"
-  plotsp(x,col=col, xlab="wavelength (nm)",ylab=unit, lwd=3)
-  legend(x="topright",legend=c(n1,n2), col = c("red","black"),lty=1)
-  title(tit)
-}
 
 xAGAP=NULL
 ld=list.dirs("/home/ecarnot/Documents/INRA/Projets/MalaNIRS_Mais/ring_test/2025_Jun_03-mais_MLD")
@@ -50,7 +41,7 @@ xAGAPrm=xAGAPrm[idx,]
 xAGAPrmp=snv(log(1/xAGAPrm[,130:ncol(xAGAPrm)]))
 xDIArp=snv(xDIAr[,130:ncol(xDIAr)])
 
-x=rbind(xAGAPrm,xDIAr)
+x=rbind(log(1/xAGAPrm),xDIAr)
 col=rep("red",nrow(x))
 col[1:nrow(xAGAPrm)]="black"
 plotsp(x,col=col, xlab="wavelength (nm)",ylab="Absorbance")
@@ -58,15 +49,15 @@ legend(x="topright",legend=c("DIASCOPE","AGAP"), col = c("red","black"),lty=1)
 title("MALANIRS - Spectra from ring-test (SNV) Common range")
 
 # Save to ChemFlow
-xAGAPcf=xAGAPrm
-colnames(xAGAPcf)=paste0("V",1:ncol(xAGAPcf))
-xDIAcf=xDIAr
-colnames(xDIAcf)=paste0("V",1:ncol(xDIAcf))
-
-x=rbind(xAGAPcf, xAGAPcf[rep(1:nrow(xAGAPcf), each = 100), ])
-write.table(x, file = "/home/ecarnot/Documents/INRA/Projets/MalaNIRS_Mais/ring_test/xAGAPcf.txt", row.names = 1:nrow(x), sep="\t", quote = F)
-x=rbind(xDIAcf, xDIAcf[rep(1:nrow(xDIAcf), each = 100), ])
-write.table(x,file="/home/ecarnot/Documents/INRA/Projets/MalaNIRS_Mais/ring_test/xDIAcf.txt", row.names = 1:nrow(x), sep="\t", quote = F)
+# xAGAPcf=xAGAPrm
+# colnames(xAGAPcf)=paste0("V",1:ncol(xAGAPcf))
+# xDIAcf=xDIAr
+# colnames(xDIAcf)=paste0("V",1:ncol(xDIAcf))
+# 
+# x=rbind(xAGAPcf, xAGAPcf[rep(1:nrow(xAGAPcf), each = 100), ])
+# write.table(x, file = "/home/ecarnot/Documents/INRA/Projets/MalaNIRS_Mais/ring_test/xAGAPcf.txt", row.names = 1:nrow(x), sep="\t", quote = F)
+# x=rbind(xDIAcf, xDIAcf[rep(1:nrow(xDIAcf), each = 100), ])
+# write.table(x,file="/home/ecarnot/Documents/INRA/Projets/MalaNIRS_Mais/ring_test/xDIAcf.txt", row.names = 1:nrow(x), sep="\t", quote = F)
 
 
 
@@ -80,25 +71,28 @@ xDIAcal=xDIAr[ical,]
 xAGAPval=xAGAPrm[-ical,]
 xDIAval=xDIAr[-ical,]
 w=10
-colw=w+5:(nccol(xAGAPcal)-2*w)
+colw=w+5:(ncol(xAGAPcal)-2*w)
 
 # Presentation des différences
-plotspMALA(xAGAPcal,xDIAcal,unit="Absorbance/Reflectance","DIASCOPE","AGAP")
 plotspMALA(log(1/xAGAPcal), xDIAcal,unit="Absorbance","DIASCOPE","AGAP", "To abs")
 plotspMALA(snv(log(1/xAGAPcal)), snv(xDIAcal),unit="Absorbance","DIASCOPE","AGAP", "To abs + SNV")
 plotspMALA(snv(log(1/xAGAPcal[,151:700])), snv(xDIAcal[,151:700]),unit="Absorbance","DIASCOPE","AGAP", "To abs + SNV")
+
+plotspgg(rbind(log(1/xAGAPcal),xDIAcal),c(rep("AGAP",nrow(xAGAPcal)),rep("DIASCOPE",nrow(xDIAcal))),"Raw spectra")
+plotspgg(rbind(snv(log(1/xAGAPcal)), snv(xDIAcal)),c(rep("AGAP",nrow(xAGAPcal)),rep("DIASCOPE",nrow(xDIAcal))),"Pretreatement SNV")
+
+
 
 # PDS sur brut
 mPDS = PDS(xAGAPcal, xDIAcal,  w, 1)
 xDIApred<-as.matrix(xDIAval)%*%as.matrix(mPDS$P)
 xDIApred<-sweep(xDIApred, 2, as.numeric(t(mPDS$Intercept)), "+")
-plotspMALA(xAGAPval[,colw],xDIApred[,colw],unit="Reflectance","DIASCOPE","AGAP", "DIASCOPE to AGAP")
-plotspMALA(snv(xAGAPval)[,colw],snv(xDIApred)[,colw],unit="Reflectance","DIASCOPE","AGAP", "DIASCOPE to AGAP + SNV")
-plotsp(snv(xAGAPval)[,colw]-snv(xDIApred)[,colw])
 
-# xDIAcalpred<-as.matrix(xDIAcal)%*%as.matrix(mPDS$P)
-# xDIAcalpred<-sweep(xDIAcalpred, 2, as.numeric(t(mPDS$Intercept)), "+")
-# plotspMALA(xAGAPcal,xDIAcalpred,unit="Reflectance","DIASCOPE","AGAP", "DIASCOPE to AGAP")
+plotspgg(rbind(xAGAPval[,colw],xDIApred[,colw]),c(rep("AGAP",nrow(xAGAPval)),rep("DIASCOPE",nrow(xDIAval))),"DIASCOPE to AGAP Raw")
+plotspgg(snv(rbind(xAGAPval[,colw],xDIApred[,colw])),c(rep("AGAP",nrow(xAGAPval)),rep("DIASCOPE",nrow(xDIAval))),"DIASCOPE to AGAP SNV")
+plotspgg(rbind(snv(xAGAPval[,colw])-snv(xDIApred[,colw])),title = "DIFF DIASCOPE - AGAP SNV")
+
+plotsp(snv(xAGAPval)[,colw]-snv(xDIApred)[,colw])
 
 
 # PDS sur Abs
@@ -115,6 +109,11 @@ dif=colMeans(log(1/xAGAPcal)-xDIAcal)
 difdup=do.call(rbind, replicate(nrow(xDIAval), dif, simplify = FALSE))
 xDIApred=xDIAval+difdup
 plotspMALA(log(1/xAGAPval), xDIApred,unit="Absorbance","DIASCOPE","AGAP", "STD par difference")
+
+
+
+
+
 
 
 
