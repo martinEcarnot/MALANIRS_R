@@ -118,22 +118,24 @@ plotspgg <- function(x, class = NULL, title = NULL, ribbon = FALSE) {
   } else {
     p <- ggplot()
     
-    if (ribbon) {
-      p <- p + geom_ribbon(
-        data = df_summary,
-        aes(x = wavelength, ymin = mean - sd, ymax = mean + sd),
-        fill = "grey70", alpha = 0.3
-      )
-    }
-    
     p <- p +
       geom_line(
         data = df_long,
         aes(x = wavelength, y = intensity, group = spectrum_id),
-        color = "grey40", alpha = 0.8, size=1
+        color = "grey50", alpha = 0.8, size=1
       ) +
       labs(x = "Wavelength", y = "Intensity", title = title) +
       theme_minimal()
+    
+    if (ribbon) {
+      p <- p + geom_ribbon(
+        data = df_summary,
+        aes(x = wavelength, ymin = mean - sd, ymax = mean + sd),
+        fill = "grey30", alpha = 0.3
+      )
+    }
+    
+
   }
   
   
