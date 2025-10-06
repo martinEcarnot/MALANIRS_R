@@ -51,7 +51,7 @@ PDS<-function(masterSpectra, slaveSpectra, MWsize, Ncomp, wavelength){
 
 
 
-# Fonction pour tracer courbes 
+# Function to draw spectra from 2 groups (with plotsp)
 plotspMALA <-function(x1,x2,unit,n1,n2,tit=""){
   x=rbind(x1,x2)
   col=rep("red",nrow(x))
@@ -63,7 +63,7 @@ plotspMALA <-function(x1,x2,unit,n1,n2,tit=""){
 
 
 
-# Fonction pour tracer courbes ggplot
+# Function to draw spectra from 2 groups (with ggplot)
 plotspgg <- function(x, class = NULL, title = NULL, ribbon = FALSE) {
   library(tidyverse)
   
