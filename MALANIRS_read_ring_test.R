@@ -27,7 +27,9 @@ spD$ech=substr(spD$Sample.Number,6,12)
 xDIA=as.matrix(spD[,-c(1:6,ncol(spD),ncol(spD)-1)])
 row.names(xDIA)=make.unique(spD$ech)
 colnames(xDIA)=substr(colnames(spD[,-c(1:6,ncol(spD),ncol(spD)-1)]),2,8)
+
 # save(xAGAP,xDIA, file = "malanirs_ring_test")
+
 
 # Make them fit to the AGAP wavelength range
 com=intersect(rownames(xAGAP),rownames(xDIA))
@@ -56,6 +58,11 @@ title("MALANIRS - Spectra from ring-test (SNV) Common range")
 # colnames(xDIAcf)=paste0("V",1:ncol(xDIAcf))
 
 ## Write data set
+write.table(xAGAP, file = "/home/ecarnot/Documents/INRA/Projets/MalaNIRS_Mais/ring_test/sp_AGAP.csv",row.names = F,sep=";", quote = F)
+write.table(cbind(rownames(xAGAP),rep("Reflectance_0_1",nrow(xAGAP))), file = "/home/ecarnot/Documents/INRA/Projets/MalaNIRS_Mais/ring_test/sp_AGAP_meta.csv",row.names = F,col.names = c("sample","unit"),sep=";", quote = F)
+write.table(xDIA, file = "/home/ecarnot/Documents/INRA/Projets/MalaNIRS_Mais/ring_test/sp_DIA.csv",row.names = F,sep=";", quote = F)
+write.table(cbind(rownames(xDIA),rep("Reflectance_0_1",nrow(xDIA))), file = "/home/ecarnot/Documents/INRA/Projets/MalaNIRS_Mais/ring_test/sp_DIA_meta.csv",row.names = F,col.names = c("sample","unit"),sep=";", quote = F)
+
 # x=rbind(xAGAPcf, xAGAPcf[rep(1:nrow(xAGAPcf), each = 100), ])
 # write.table(x, file = "/home/ecarnot/Documents/INRA/Projets/MalaNIRS_Mais/ring_test/xAGAPcf.txt", row.names = 1:nrow(x), sep="\t", quote = F)
 # x=rbind(xDIAcf, xDIAcf[rep(1:nrow(xDIAcf), each = 100), ])

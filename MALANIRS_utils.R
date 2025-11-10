@@ -142,3 +142,63 @@ plotspgg <- function(x, class = NULL, title = NULL, ribbon = FALSE) {
   return(p)
 }
 
+
+
+
+
+
+# Fonction de  Comparaison entre smp$GQE$`MRS / EVA Code` et spGQE$code ---
+
+check_sp=function(liste_ref,liste_sp) {
+
+  # ---- Comparaison principale ----
+  
+  # Nombre d'occurrences de chaque code de la liste de référence dans la liste sp
+  nb_occurrences <- sapply(liste_ref, function(x) sum(liste_sp == x, na.rm = TRUE))
+  
+  # Tableau récapitulatif : pour chaque code de référence
+  tableau_comparaison <- data.frame(
+    Code = liste_ref,
+    Occurrences_dans_spGQE = nb_occurrences,
+    Présent_dans_spGQE = ifelse(nb_occurrences > 0, "✅ Oui", "❌ Non"),
+    stringsAsFactors = FALSE
+  )
+  
+  # ---- Résumé global ----
+  nb_total   <- length(liste_ref)
+  nb_present <- sum(nb_occurrences > 0)
+  nb_absent  <- sum(nb_occurrences == 0)
+  
+  resume <- data.frame(
+    Total = nb_total,
+    Présents = nb_present,
+    Absents = nb_absent,
+    `% Présents` = round(100 * nb_present / nb_total, 1)
+  )
+  
+  # ---- Comparaison inverse ----
+  # Codes présents dans spGQE mais absents dans la liste de référence
+  codes_sp_non_trouves <- liste_sp[!liste_sp %in% liste_ref]
+  codes_sp_non_trouves <- unique(codes_sp_non_trouves)
+  
+  # ---- Affichage ----
+  cat("=== Résumé global ===\n")
+  print(resume)
+  
+  cat("\n=== Codes de référence absents de spGQE ===\n")
+  print(unique(liste_ref[nb_occurrences == 0]))
+  
+  cat("\n=== Codes de spGQE absents de la liste de référence ===\n")
+  print(codes_sp_non_trouves)
+  
+  # ---- Export CSV ----
+  write.csv(tableau_comparaison, "comparaison_codes.csv", row.names = FALSE)
+  write.csv(data.frame(Code_sp_absent = codes_sp_non_trouves),
+            "codes_sp_absents.csv", row.names = FALSE)
+  
+  cat("\n✅ Fichiers enregistrés :\n")
+  cat(" - comparaison_codes.csv (résumé principal)\n")
+  cat(" - codes_sp_absents.csv (codes de spGQE absents dans la liste de référence)\n")
+}
+
+
