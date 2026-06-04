@@ -55,6 +55,24 @@ write.csv(spRom$x, "/home/ecarnot/Documents/INRA/Projets/MalaNIRS_Mais/smpl_2025
 
 
 # CRB_Gamet
+f_crb="/home/ecarnot/Documents/INRA/Projets/MalaNIRS_Mais/smpl_2025/pop_francaise/feuille prélèvement ZEA-DST2025-001 Compan (Malanirs).xlsx"
+smpCRB=read_excel(f_crb)
+smpCRB$lot_last5=as.integer(substr(smpCRB$`N° lots`, nchar(smpCRB$`N° lots`)-4, nchar(smpCRB$`N° lots`)))
+lookup_crb=setNames(smpCRB$Accessions, smpCRB$lot_last5)
+
 spCRB=naturaspec2df(paste0(sourcef,"CRB_Gamet/"))
-rownames(spCRB$x)=paste0("FRA_",rownames(spCRB$x))
+rn=rownames(spCRB$x)
+prefix=sub("_.*","",rn)
+suffix=sub("^[^_]+","",rn)
+
+# Replace numeric prefixes (= last 5 digits of N° lots) with Accessions
+is_num=grepl("^[0-9]+$",prefix)
+mapped=lookup_crb[prefix[is_num]]
+# Keep original rowname if no match found (e.g. prefixes 63 and 161)
+new_rn=rn
+new_rn[is_num]=ifelse(is.na(mapped), rn[is_num], paste0(mapped, suffix[is_num]))
+rownames(spCRB$x)=new_rn
+
 write.csv(spCRB$x, "/home/ecarnot/Documents/INRA/Projets/MalaNIRS_Mais/smpl_2025/NIRS_CRBGamet2025.csv", row.names = TRUE, quote = FALSE)
+
+

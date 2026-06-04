@@ -1,6 +1,8 @@
 library(rchemo)
 library(nirsextra)
 
+# From 20 ring test samples measured for biochemistry at CREA, try a calibration
+
 # Calib
 ref=read.table("/home/ecarnot/Documents/INRA/Projets/MalaNIRS_Mais/ring_test/ring_test_bioch.csv", sep=";", header=TRUE, dec=".")
 colnames(ref)[1]="ech"

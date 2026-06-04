@@ -1,3 +1,6 @@
+# Gather ring test samples from AGAP and DIASCOPE, compare them and test standardisation methods (PDS, difference of average)
+
+
 library(spectrolab)
 library(rchemo)
 library(nirsextra)

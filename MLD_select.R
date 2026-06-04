@@ -1,4 +1,7 @@
 # MineLanDiv sample from DIASCOPE 2024
+
+#  Selection of samples from Minelandiv 2024, stored at DIASCOPE to be meseasured by AGAP NIRS
+
 library(nirsextra)
 library(rchemo)
 f="/home/ecarnot/Documents/INRA/Projets/MalaNIRS_Mais/ech_DIASCOPE/mld24dia.txt"
