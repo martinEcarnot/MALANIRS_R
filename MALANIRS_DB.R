@@ -76,3 +76,27 @@ rownames(spCRB$x)=new_rn
 write.csv(spCRB$x, "/home/ecarnot/Documents/INRA/Projets/MalaNIRS_Mais/smpl_2025/NIRS_CRBGamet2025.csv", row.names = TRUE, quote = FALSE)
 
 
+# CRB_Gamet Brimrose Single Kernel
+brim_raw <- read.table(
+  "/home/ecarnot/Documents/INRA/Projets/MalaNIRS_Mais/smpl_2025/MALANIRS_Brimrose_Single_kernel.txt",
+  sep = ";", header = TRUE, row.names = NULL, check.names = FALSE
+)
+# Col 1 = always NA (drop), col 2 = lot_last5, cols 3+ = spectral data
+spBrim_mat <- brim_raw[, -(1:2)]
+lot_ids    <- as.character(brim_raw[[2]])
+
+# Replace lot_last5 with accession names (reuse lookup_crb from CRB_Gamet section)
+mapped_rn <- ifelse(
+  lot_ids %in% names(lookup_crb),
+  lookup_crb[lot_ids],
+  lot_ids   # keep original if no match (63, 161)
+)
+
+# Single-kernel data: add per-accession kernel index to ensure unique row names
+kernel_idx <- ave(seq_along(mapped_rn), mapped_rn, FUN = seq_along)
+rownames(spBrim_mat) <- sprintf("%s_%03d", mapped_rn, as.integer(kernel_idx))
+
+write.csv(spBrim_mat,
+          "/home/ecarnot/Documents/INRA/Projets/MalaNIRS_Mais/smpl_2025/NIRS_CRBGamet2025_SingleKernel.csv",
+          row.names = TRUE, quote = FALSE)
+
