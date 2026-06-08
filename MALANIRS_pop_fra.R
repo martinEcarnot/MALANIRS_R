@@ -190,12 +190,12 @@ library(rchemo)
 source("MALANIRS_list_pre.R")
 
 source("/home/ecarnot/Documents/INRA/Projets/VitaSPEC/vitaspec_R/vitaspec_preCV.R")
-sp=read.csv("/home/ecarnot/Documents/INRA/Projets/MalaNIRS_Mais/smpl_2025/NIRS_CRBGamet2025_SingleKernel_mean.csv")
-bioch=read.csv("/home/ecarnot/Documents/INRA/Projets/MalaNIRS_Mais/smpl_2025/NIRS_CRBGamet2025_SingleKernel_mean_bioch.csv")
+# sp=read.csv("/home/ecarnot/Documents/INRA/Projets/MalaNIRS_Mais/smpl_2025/NIRS_CRBGamet2025_SingleKernel_mean.csv")
+# bioch=read.csv("/home/ecarnot/Documents/INRA/Projets/MalaNIRS_Mais/smpl_2025/NIRS_CRBGamet2025_SingleKernel_mean_bioch.csv")
 # sp=read.csv("/home/ecarnot/Documents/INRA/Projets/MalaNIRS_Mais/smpl_2025/NIRS_CRBGamet2025_SingleKernel_red.csv")
 # bioch=read.csv("/home/ecarnot/Documents/INRA/Projets/MalaNIRS_Mais/smpl_2025/NIRS_CRBGamet2025_SingleKernel_red_bioch.csv")
-# sp=read.csv(paste0(base, "pop_francaise/NIRS_popFra_matched.csv"))[,-1]
-# bioch=read.csv(paste0(base, "pop_francaise/bio_popFra_matched.csv"))
+sp=read.csv(paste0(base, "pop_francaise/NIRS_popFra_matched.csv"))[,-1]
+bioch=read.csv(paste0(base, "pop_francaise/bio_popFra_matched.csv"))
 traits_bioch <- names(bioch)[!grepl("_SMH$|_MAU$", names(bioch))]
 traits_bioch <- traits_bioch[traits_bioch != "MSIKA" & traits_bioch != "X" ]
 
@@ -207,7 +207,7 @@ nrows   <- ceiling(n_traits / ncols)
 recap <- vector("list", n_traits)
 names(recap) <- traits_bioch
 
-pdf("sorties/calibration_R2_CV.pdf", width = ncols * 4, height = nrows * 4)
+pdf("sorties_lots/calibration_R2_CV.pdf", width = ncols * 4, height = nrows * 4)
 par(mfrow = c(nrows, ncols))
 for (trait in traits_bioch) {
   cat("R2 CV :", trait, "\n")
