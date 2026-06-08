@@ -123,7 +123,7 @@ cat("Single kernel chargé:", nrow(nirs_sk), "grains,", ncol(nirs_sk), "longueur
 
 # Tirage aléatoire de 10% des grains
 set.seed(4721)
-idx_sample <- sample(nrow(nirs_sk), size = round(nrow(nirs_sk) * 1))
+idx_sample <- sample(nrow(nirs_sk), size = round(nrow(nirs_sk) * 0.05))
 nirs_sk_s  <- nirs_sk[idx_sample, ]
 
 cat("Après tirage 10%:", nrow(nirs_sk_s), "grains\n")
@@ -182,3 +182,57 @@ write.csv(bio_sk_mean,
 cat("Fichiers moyennes SK exportés:\n")
 cat(" -", "/home/ecarnot/Documents/INRA/Projets/MalaNIRS_Mais/smpl_2025/NIRS_CRBGamet2025_SingleKernel_mean.csv", "\n")
 cat(" -", "/home/ecarnot/Documents/INRA/Projets/MalaNIRS_Mais/smpl_2025/NIRS_CRBGamet2025_SingleKernel_mean_bioch.csv", "\n")
+
+
+# Tentative de calibration des spectres grain à grains.
+library(nirsextra)
+library(rchemo)
+source("MALANIRS_list_pre.R")
+
+source("/home/ecarnot/Documents/INRA/Projets/VitaSPEC/vitaspec_R/vitaspec_preCV.R")
+sp=read.csv("/home/ecarnot/Documents/INRA/Projets/MalaNIRS_Mais/smpl_2025/NIRS_CRBGamet2025_SingleKernel_mean.csv")
+bioch=read.csv("/home/ecarnot/Documents/INRA/Projets/MalaNIRS_Mais/smpl_2025/NIRS_CRBGamet2025_SingleKernel_mean_bioch.csv")
+# sp=read.csv("/home/ecarnot/Documents/INRA/Projets/MalaNIRS_Mais/smpl_2025/NIRS_CRBGamet2025_SingleKernel_red.csv")
+# bioch=read.csv("/home/ecarnot/Documents/INRA/Projets/MalaNIRS_Mais/smpl_2025/NIRS_CRBGamet2025_SingleKernel_red_bioch.csv")
+# sp=read.csv(paste0(base, "pop_francaise/NIRS_popFra_matched.csv"))[,-1]
+# bioch=read.csv(paste0(base, "pop_francaise/bio_popFra_matched.csv"))
+traits_bioch <- names(bioch)[!grepl("_SMH$|_MAU$", names(bioch))]
+traits_bioch <- traits_bioch[traits_bioch != "MSIKA" & traits_bioch != "X" ]
+
+n_traits <- length(traits_bioch)
+ncols   <- 5
+nrows   <- ceiling(n_traits / ncols)
+
+# --- Graphiques R² validation croisée + collecte des stats ---
+recap <- vector("list", n_traits)
+names(recap) <- traits_bioch
+
+pdf("sorties/calibration_R2_CV.pdf", width = ncols * 4, height = nrows * 4)
+par(mfrow = c(nrows, ncols))
+for (trait in traits_bioch) {
+  cat("R2 CV :", trait, "\n")
+  recap[[trait]] <- vitaspec_preCV(sp, bioch[[trait]], list_pre = list_pre, ncomp = 25, titl = trait,
+                                   plotLV = TRUE, plotYY = FALSE, verb = FALSE)
+}
+dev.off()
+
+# --- Tableau récapitulatif ---
+recap_df <- do.call(rbind, lapply(traits_bioch, function(tr) {
+  r <- recap[[tr]]
+  data.frame(trait = tr, ncomp = r$ncomp, pretraitement = r$pre, R2 = r$r2, SEP = r$sep,
+             stringsAsFactors = FALSE)
+}))
+write.csv(recap_df, "sorties/calibration_recap.csv", row.names = FALSE, quote = FALSE)
+cat("Tableau récapitulatif sauvegardé : sorties/calibration_recap.csv\n")
+
+# --- Graphiques teneur mesurée vs prédite ---
+pdf("sorties/calibration_YY.pdf", width = ncols * 4, height = nrows * 4)
+par(mfrow = c(nrows, ncols))
+for (trait in traits_bioch) {
+  cat("YY :", trait, "\n")
+  vitaspec_preCV(sp, bioch[[trait]], list_pre = list_pre, ncomp = 25, titl = trait,
+                 plotLV = FALSE, plotYY = TRUE, verb = FALSE)
+}
+dev.off()
+
+

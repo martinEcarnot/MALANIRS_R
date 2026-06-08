@@ -1,0 +1,31 @@
+trait,ncomp,pretraitement,R2,SEP
+HART,13,red_c(10, 10, 1)_snv__sder_c(2, 3, 9),0.4358,0.1243
+CT_MS,21,red_c(10, 10, 1)_snv_,0.3126,0.0333
+MPT_MS,8,red_c(10, 10, 1)_snv__sder_c(1, 3, 5),0.2809,0.5511
+MG_MS,14,red_c(10, 10, 1)_snv__sder_c(1, 3, 9),0.2855,0.3008
+AMIDON_MS,14,red_c(10, 10, 1)_snv__sder_c(1, 3, 9),0.3593,0.872
+SST_MS,18,sder_c(2, 3, 5),0.2076,0.0634
+TOTAL_MS,13,red_c(10, 10, 1)_snv_,0.4245,0.4205
+AMY_AMI,12,red_c(20, 20, 1)_snv__sder_c(1, 3, 5),0.2559,0.6786
+AP_AMI,10,red_c(10, 10, 1)_snv__sder_c(1, 3, 9),0.2664,0.6693
+AMY_MS,10,red_c(10, 10, 1)_snv__sder_c(1, 3, 9),0.2894,0.533
+APE_MS,6,red_c(10, 10, 1)_snv__sder_c(2, 3, 9),0.2638,0.743
+PALMI_MS,14,red_c(10, 10, 1)_snv__sder_c(1, 3, 9),0.2992,0.0449
+STEAR_MS,19,red_c(20, 20, 1)_snv__sder_c(1, 3, 5),0.2703,0.0126
+OLEIC_MS,17,red_c(10, 10, 1)_snv__sder_c(1, 3, 9),0.3584,0.1846
+LINOL_MS,21,red_c(20, 20, 1)_snv__sder_c(1, 3, 5),0.229,0.1198
+ALINO_MS,17,red_c(20, 20, 1)_snv__sder_c(1, 3, 5),0.0941,3e-04
+SACms,14,red_c(10, 10, 1)_snv__sder_c(1, 3, 9),0.1704,0.0526
+GLUms,3,red_c(10, 10, 1)_snv__sder_c(1, 3, 9),0.256,0.0065
+FRUms,14,red_c(10, 10, 1)_snv__sder_c(1, 3, 9),0.165,0.0083
+PALMI_MG,18,red_c(20, 20, 1)_snv__sder_c(1, 3, 5),0.4275,0.2293
+STEAR_MG,16,red_c(10, 10, 1)_snv__sder_c(1, 3, 9),0.355,0.1008
+OLEIC_MG,18,red_c(20, 20, 1)_sder_c(1, 3, 5),0.4086,1.7383
+LINOL_MG,18,red_c(10, 10, 1)_snv__sder_c(1, 3, 9),0.3956,2.1482
+ALINO_MG,14,red_c(10, 10, 1)_snv__sder_c(1, 3, 5),0.3665,0.0323
+SACose,15,sder_c(2, 3, 5),0.1743,0.6334
+GLUose,14,red_c(10, 10, 1)_snv__sder_c(2, 3, 9),0.3539,0.2759
+FRUose,14,red_c(10, 10, 1)_snv__sder_c(1, 3, 5),0.2437,0.2655
+TOTAMms,11,red_c(10, 10, 1)_snv__sder_c(1, 3, 5),0.4476,0.8444
+TOTAGms,14,red_c(20, 20, 1)_sder_c(1, 3, 5),0.2771,0.2963
+TOTOSms,14,red_c(10, 10, 1)_snv__sder_c(1, 3, 9),0.1997,0.0629
