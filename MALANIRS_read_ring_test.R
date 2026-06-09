@@ -116,7 +116,7 @@ xDIApred=xDIAval+difdup
 plotspMALA(log(1/xAGAPval), xDIApred,unit="Absorbance","DIASCOPE","AGAP", "STD par difference")
 
 
-
+stop()
 
 ## All spectra measured in MALANIRS at AGAP -> compute variance and compare to standardisation error
 

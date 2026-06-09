@@ -16,8 +16,23 @@ row.names(xDIA)=make.unique(spD$ech)
 xAGAP=NULL
 ld=list.dirs("/media/ecarnot/C8DE-2338/MALANIRS/MALANIRS/MLD24DIASCOPE/")
 sp=read_spectra(ld)
-sp$ech=substr(sp$names,1,13)
+sp$ech=substr(sp$names,1,12)
 # sp$ech=gsub("-","_",sp$ech)
-xAGAP1=sp$value
-row.names(xAGAP1)=sp$ech
-colnames(xAGAP1)=sp$bands
+xAGAP=sp$value
+row.names(xAGAP)=sp$ech
+colnames(xAGAP)=sp$bands
+xAGAP=aggregate(xAGAP,by=list(sp$ech), mean)
+rownames(xAGAP)=xAGAP[,1]
+xAGAP[,1]=NULL
+
+# 
+com=intersect(rownames(xAGAP),rownames(xDIA))
+xAGAPr=xAGAP[match(com,rownames(xAGAP)),51:750]
+xDIAr=xDIA[match(com,rownames(xDIA)),seq(1,ncol(xDIA),2)]
+
+
+# PDS from MALANIRS_rad_ring_tets
+xDIApred<-as.matrix(xDIAr)%*%as.matrix(mPDS$P)
+xDIApred<-sweep(xDIApred, 2, as.numeric(t(mPDS$Intercept)), "+")
+plotsp(xDIApred)
+
