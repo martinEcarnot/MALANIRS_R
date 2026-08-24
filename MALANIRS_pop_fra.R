@@ -4,6 +4,7 @@
 # Explore les traits biochimuqes du fichier table_mean_adjusted_NIRS_biochimie_res_rowcol_GxE.csv
 
 library(readxl)
+library(ggplot2)
 
 base <- "/home/ecarnot/Documents/INRA/Projets/MalaNIRS_Mais/smpl_2025/"
 
@@ -83,6 +84,9 @@ cat(" -", paste0(base, "pop_francaise/bio_popFra_matched.csv"), "\n")
 
 library(dplyr)
 library(stringr)
+smh_cols <- names(bio_final)[str_ends(names(bio_final), "_SMH")]
+# mau_cols <- names(bio_final)[str_ends(names(bio_final), "_MAU")]
+
 
 # Tous les traits avec _SMH et _MAU
 all_traits <- str_remove(smh_cols, "_SMH$")
@@ -108,7 +112,8 @@ ggplot(df_all, aes(x = SMH, y = MAU)) +
             hjust = 1.05, vjust = 0, size = 2.5) +
   facet_wrap(~trait, scales = "free", ncol = 6) +
   theme_bw(base_size = 8) +
-  theme(strip.text = element_text(size = 7))
+  theme(strip.text = element_text(size = 7)) +
+  labs(title = "Comparaison SMH vs MAU pour tous les traits biochimiques")
 
 
 
@@ -191,6 +196,7 @@ library(rchemo)
 source("MALANIRS_list_pre.R")
 
 source("/home/ecarnot/Documents/INRA/Projets/VitaSPEC/vitaspec_R/vitaspec_preCV.R")
+
 # sp=read.csv("/home/ecarnot/Documents/INRA/Projets/MalaNIRS_Mais/smpl_2025/NIRS_CRBGamet2025_SingleKernel_mean.csv")
 # bioch=read.csv("/home/ecarnot/Documents/INRA/Projets/MalaNIRS_Mais/smpl_2025/NIRS_CRBGamet2025_SingleKernel_mean_bioch.csv")
 # sp=read.csv("/home/ecarnot/Documents/INRA/Projets/MalaNIRS_Mais/smpl_2025/NIRS_CRBGamet2025_SingleKernel_red.csv")
@@ -227,7 +233,7 @@ write.csv(recap_df, "sorties/calibration_recap.csv", row.names = FALSE, quote = 
 cat("Tableau récapitulatif sauvegardé : sorties/calibration_recap.csv\n")
 
 # --- Graphiques teneur mesurée vs prédite ---
-pdf("sorties/calibration_YY.pdf", width = ncols * 4, height = nrows * 4)
+pdf("sorties_lots/calibration_YY.pdf", width = ncols * 4, height = nrows * 4)
 par(mfrow = c(nrows, ncols))
 for (trait in traits_bioch) {
   cat("YY :", trait, "\n")
@@ -235,5 +241,4 @@ for (trait in traits_bioch) {
                  plotLV = FALSE, plotYY = TRUE, verb = FALSE)
 }
 dev.off()
-
 
