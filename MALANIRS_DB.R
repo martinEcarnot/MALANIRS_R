@@ -5,7 +5,7 @@ library(nirsextra)
 library(readxl)
 source("MALANIRS_utils.R")
 
-sourcef="/media/ecarnot/C8DE-2338/MALANIRS/MALANIRS/"
+# sourcef="/media/ecarnot/C8DE-2338/MALANIRS/MALANIRS/"
 sourcef="/home/ecarnot/Documents/INRA/Projets/MalaNIRS_Mais/smpl_2025/"
 
 # GQE
