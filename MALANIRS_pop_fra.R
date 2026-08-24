@@ -82,6 +82,7 @@ cat(" -", paste0(base, "pop_francaise/bio_popFra_matched.csv"), "\n")
 
 
 library(dplyr)
+library(stringr)
 
 # Tous les traits avec _SMH et _MAU
 all_traits <- str_remove(smh_cols, "_SMH$")
