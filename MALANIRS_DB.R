@@ -6,6 +6,8 @@ library(readxl)
 source("MALANIRS_utils.R")
 
 sourcef="/media/ecarnot/C8DE-2338/MALANIRS/MALANIRS/"
+sourcef="/home/ecarnot/Documents/INRA/Projets/MalaNIRS_Mais/smpl_2025/"
+
 # GQE
 f="/home/ecarnot/Documents/INRA/Projets/MalaNIRS_Mais/smpl_2025/Liste semences MRS_complète_GQE.xlsx"
 smpGQE=read_excel(f)
