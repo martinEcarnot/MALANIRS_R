@@ -202,3 +202,151 @@ check_sp=function(liste_ref,liste_sp) {
 }
 
 
+
+# PDS: Test si c'est mieux de prétraiter avant la correction 
+# Au final,c'est mieux de prétraiter avant
+# (attention aux effets de bords
+# d'un SG qui explosent les diff après pré)
+
+pds_pre <- function(X1_cal,X2_cal,X1_val,X2_val) {
+  
+  # Test de plusieurs tailles de fenêtres glissantes (ex: 3, 5, 9, 13)
+  window_sizes <-  c(5,11, 15, 51)
+  ncomp=1
+  rmsd_results <- numeric(length(window_sizes))
+  source("MALANIRS_list_pre.R")
+  
+  # RMSD Avant correction et sans pretraitement
+  rmsd_initial <- sqrt(mean((X1_val - X2_val)^2))
+  cat(sprintf("RMSD initial (sans PDS) : %.6f\n", rmsd_initial))
+  
+  for (i in seq_along(list_pre)) {
+    X1_calp <- pre(X1_cal, list_pre[[i]])
+    X2_calp <- pre(X2_cal, list_pre[[i]])
+    X1_valp <- pre(X1_val, list_pre[[i]])
+    X2_valp <- pre(X2_val, list_pre[[i]])
+  
+    # RMSD Avant correction
+    rmsd_initial <- sqrt(mean((X1_valp - X2_valp)^2))
+    cat(sprintf("RMSD initial (sans PDS) : %.6f\n", rmsd_initial))
+    
+    # Recherche de la meilleure fenêtre glissante
+    for (w in seq_along(window_sizes)) {
+      win <- window_sizes[w]
+      coloutp=c(1:floor(win),(ncol(X1_calp)-floor(win/2)):ncol(X1_calp))
+      colout=c(1:floor(win),(ncol(X1)-floor(win/2)):ncol(X1))
+      
+      ## Prétraitement avant
+      mPDS <- PDS(masterSpectra = X1_calp, slaveSpectra = X2_calp, MWsize = floor(win/2), Ncomp = ncomp)
+      X2_valp_corrected<-X2_valp%*%as.matrix(mPDS$P)
+      X2_valp_corrected<-sweep(X2_valp_corrected, 2, as.numeric(t(mPDS$Intercept)), "+")
+      # Calcul du RMSD post-correction
+      rmsd_results[w] <- sqrt(mean((X1_valp[,-coloutp] - X2_valp_corrected[,-coloutp])^2))
+      cat(sprintf("RMSD avec fenêtre PDS (Pré avant) = %2d : %.6f\n", win, rmsd_results[w]))
+      plot(plotspgg(rbind(X1_valp[,-coloutp] , X2_valp_corrected[,-coloutp]),c(rep("AGAP",nrow(X1_val)),rep("DIASCOPE_corr",nrow(X2_val))),"Pré avant"))
+      
+      ## Prétraitement après
+      mPDS <- PDS(masterSpectra = X1_cal, slaveSpectra = X2_cal, MWsize = floor(win/2), Ncomp = ncomp)
+      X2_val_corrected<-X2_val%*%as.matrix(mPDS$P)
+      X2_val_corrected<-sweep(X2_val_corrected, 2, as.numeric(t(mPDS$Intercept)), "+")
+      
+      # Calcul du RMSD post-correction
+      rmsd_results[w] <- sqrt(mean((pre(X1_val[,-colout], list_pre[[i]]) - pre(X2_val_corrected[,-colout], list_pre[[i]]))^2))
+      cat(sprintf("RMSD avec fenêtre PDS  (Pré après) = %2d : %.6f\n", win, rmsd_results[w]))
+      plot(plotspgg(rbind(pre(X1_val[,-colout], list_pre[[i]]) , pre(X2_val_corrected[,-colout], list_pre[[i]])),c(rep("AGAP",nrow(X1_val)),rep("DIASCOPE_corr",nrow(X2_val))),"Pré après"))
+      # browser()
+    }
+  }
+}
+
+
+# Fonction to compare two spectra matrices (master and slave_std) and compute various metrics including RMSE, Bias, NRMSE, R², and SAM.
+compare_spectra <- function(master, slave_std) {
+
+  N <- nrow(master)
+  P <- ncol(master)
+  
+  # ============================================================
+  # RMSE = sqrt(1/(N*P) * somme((Master - Slave_PDS)^2))
+  # ============================================================
+  rmse <- sqrt(
+    mean((master - slave_std)^2, na.rm = TRUE)
+  )
+  
+  # ============================================================
+  # NRMSE : Normalisation par l'écart-type des valeurs du maître
+  # ============================================================
+  nrmse <- rmse / sd(as.numeric(master), na.rm = TRUE)
+
+  # ============================================================
+  # Biais
+  # ============================================================
+    bias <- mean(
+    slave_std - master,
+    na.rm = TRUE
+  )
+  
+  # ============================================================
+  # R²
+  # ============================================================
+  valid <- is.finite(master) & is.finite(slave_std)
+  r <- cor(
+    master[valid],
+    slave_std[valid]
+  )
+  r2 <- r^2
+  
+  # ============================================================
+  # SAM : spectre par spectre
+  # ============================================================
+  #
+  # SAM_i = acos(
+  #   sum(Master_i * Slave_i) /
+  #   (||Master_i|| * ||Slave_i||)
+  # )
+  #
+  # Puis moyenne des SAM_i
+  #
+  
+  sam_individual <- rep(NA_real_, N)
+  
+  for (i in seq_len(N)) {
+    
+    x <- master[i, ]
+    y <- slave_std[i, ]
+
+    # Vérification des normes
+    norm_x <- sqrt(sum(x^2))
+    norm_y <- sqrt(sum(y^2))
+
+    if (length(x) == 0 || norm_x == 0 || norm_y == 0) {
+      sam_individual[i] <- NA_real_
+      next
+    }
+    
+    # Cosinus de l'angle
+    cos_theta <- sum(x * y) / (norm_x * norm_y)
+    # Protection contre les erreurs numériques
+    cos_theta <- max(-1, min(1, cos_theta))
+    
+    # SAM en radians
+    sam_individual[i] <- acos(cos_theta)
+  }
+  
+  # SAM moyen
+  sam_mean_rad <- mean(
+    sam_individual,
+    na.rm = TRUE
+  )
+
+  # ============================================================
+  # Résultats
+  # ============================================================
+  return(list(
+    RMSE = rmse,
+    NRMSE = nrmse,
+    Bias = bias,
+    R2 = r2,
+    SAM_mean_rad = sam_mean_rad
+  ))
+}
