@@ -202,11 +202,11 @@ source("/home/ecarnot/Documents/INRA/Projets/VitaSPEC/vitaspec_R/vitaspec_preCV.
 # bioch=read.csv("/home/ecarnot/Documents/INRA/Projets/MalaNIRS_Mais/smpl_2025/NIRS_CRBGamet2025_SingleKernel_red_bioch.csv")
 sp=read.csv(paste0(base, "pop_francaise/NIRS_popFra_matched.csv"))[,-1]
 bioch=read.csv(paste0(base, "pop_francaise/bio_popFra_matched.csv"))
-traits_bioch <- names(bioch)[!grepl("_SMH$|_MAU$", names(bioch))]
+traits_bioch <- names(bioch)#[!grepl("_SMH$|_MAU$", names(bioch))]
 traits_bioch <- traits_bioch[traits_bioch != "MSIKA" & traits_bioch != "X" ]
 
 n_traits <- length(traits_bioch)
-ncols   <- 5
+ncols   <- 4
 nrows   <- ceiling(n_traits / ncols)
 
 # --- Graphiques R² validation croisée + collecte des stats ---
@@ -217,8 +217,8 @@ pdf("sorties_lots/calibration_R2_CV.pdf", width = ncols * 4, height = nrows * 4)
 par(mfrow = c(nrows, ncols))
 for (trait in traits_bioch) {
   cat("R2 CV :", trait, "\n")
-  recap[[trait]] <- vitaspec_preCV(sp, bioch[[trait]], list_pre = list_pre, ncomp = 25, titl = trait,
-                                   plotLV = TRUE, plotYY = FALSE, verb = FALSE)
+  recap[[trait]] <- vitaspec_preCV(sp, bioch[[trait]], list_pre = list_pre, ncomp = 20, titl = trait,
+                                   plotLV = TRUE, plotYY = TRUE, verb = FALSE)
 }
 dev.off()
 
