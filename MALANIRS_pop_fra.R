@@ -190,11 +190,10 @@ cat(" -", "/home/ecarnot/Documents/INRA/Projets/MalaNIRS_Mais/smpl_2025/NIRS_CRB
 cat(" -", "/home/ecarnot/Documents/INRA/Projets/MalaNIRS_Mais/smpl_2025/NIRS_CRBGamet2025_SingleKernel_mean_bioch.csv", "\n")
 
 
-# Tentative de calibration des spectres grain à grains.
+## Tentative de calibration des spectres grain à grains.
 library(nirsextra)
 library(rchemo)
 source("MALANIRS_list_pre.R")
-
 source("/home/ecarnot/Documents/INRA/Projets/VitaSPEC/vitaspec_R/vitaspec_preCV.R")
 
 # sp=read.csv("/home/ecarnot/Documents/INRA/Projets/MalaNIRS_Mais/smpl_2025/NIRS_CRBGamet2025_SingleKernel_mean.csv")
