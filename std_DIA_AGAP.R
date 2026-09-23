@@ -14,7 +14,7 @@ row.names(xDIA)=make.unique(spD$ech)
 
 # Read AGAP
 xAGAP=NULL
-ld=list.dirs("/home/ecarnot/Documents/INRA/Projets/MalaNIRS_Mais/smpl_2025/MLD24DIASCOPE/")
+ld=list.dirs("/home/ecarnot/Documents/INRA/Projets/MalaNIRS_Mais/ech_DIASCOPE/MLD24DIASCOPE/")
 sp=read_spectra(ld)
 sp$ech=substr(sp$names,1,12)
 # sp$ech=gsub("-","_",sp$ech)
@@ -31,10 +31,9 @@ xAGAP=as.matrix(xAGAP)
 # Select common samples and wavelength range
 com=intersect(rownames(xAGAP),rownames(xDIA))
 xAGAPr=xAGAP[match(com,rownames(xAGAP)),51:750]
-xDIAr=xDIA[match(com,rownames(xDIA)),seq(1,ncol(xDIA),2)]
+xDIAr=xDIA[match(com,rownames(xDIA)),seq(1,ncol(xDIA),2)]  # Striclty identical to resample function
 
 setdiff(rownames(xAGAPr),rownames(xDIAr))
-
 
 ## Tune PDS with 127 samples from MLD24DIASCOPE
 
@@ -63,7 +62,7 @@ X2_val <- snv(X2[idx_val, ])
 # STEP 3 : Calcul du transfert et validation de la fenêtre
 # -----------------------------------------------------------------------------
 # Test de plusieurs tailles de fenêtres glissantes (ex: 3, 5, 9, 13)
-window_sizes <- c(11, 31, 51) # divided by 2
+window_sizes <- c(51, 71, 91) # divided by 2
 rmsd_results <- numeric(length(window_sizes))
 
 # RMSD Avant correction
@@ -75,7 +74,7 @@ for (w in seq_along(window_sizes)) {
   win <- window_sizes[w]
 
   # PDS from RNIR (cf. MALANIRS_utils.R)
-  mPDS <- PDS(masterSpectra = X1_cal, slaveSpectra = X2_cal, MWsize = floor(win/2), Ncomp = 2)
+  mPDS <- PDS(masterSpectra = X1_cal, slaveSpectra = X2_cal, MWsize = floor(win/2), Ncomp = 1)
   X2_val_corrected<-X2_val%*%as.matrix(mPDS$P)
   X2_val_corrected<-sweep(X2_val_corrected, 2, as.numeric(t(mPDS$Intercept)), "+")
 
@@ -94,18 +93,25 @@ for (w in seq_along(window_sizes)) {
   # plot(plotspgg(rbind(snv(X1_val[,-colout]),snv(X2_val_corrected[,-colout])),c(rep("AGAP",nrow(X1_val)),rep("DIASCOPE_corr",nrow(X2_val))),""))
   # # plotsp(snv(X1_val[,-colout]) - snv(X2_val_corrected[,-colout]))
 }
-
 stop()
 # -----------------------------------------------------------------------------
 # STEP 4 : Application finale avec la meilleure fenêtre (remplacer X2_val par des nouveaux spectres SNV)
 # -----------------------------------------------------------------------------
 # Calcul de la matrice F optimale et correction de l'ensemble de la base X2
-bestw=15
-colout=c(1:bestw,(ncol(X1_cal)-bestw):ncol(X1_cal))
-mPDS <- PDS(masterSpectra = X1_cal, slaveSpectra = X2_cal, MWsize = 25, Ncomp = 2)
-X2_val_corrected<-X2_val%*%as.matrix(mPDS$P)
-X2_val_corrected<-sweep(X2_val_corrected, 2, as.numeric(t(mPDS$Intercept)), "+")[,-colout]
+bestw=71
+mPDS_DIA2AGAP <- PDS(masterSpectra = rbind(X1_cal, X1_val), slaveSpectra = rbind(X2_cal, X2_val), MWsize = floor(bestw/2), Ncomp = 1)
 
+std_DIA2AGAP = function(Xnew, mPDS, bestw) {
+  X=snv(Xnew[,seq(1,ncol(xDIA),2)])
+  colout=c(1:bestw,(ncol(X)-bestw):ncol(X))
+  X_corrected<-X%*%as.matrix(mPDS$P)
+  X_corrected<-sweep(X_corrected, 2, as.numeric(t(mPDS$Intercept)), "+")[,-colout]
+  return(X_corrected)
+}
+
+# Pour Tester
+xDIA_c=std_DIA2AGAP(xDIA[match(com,rownames(xDIA)),],mPDS_DIA2AGAP, bestw)
+plotsp(xDIA_c)
 
 
 # Conclusions

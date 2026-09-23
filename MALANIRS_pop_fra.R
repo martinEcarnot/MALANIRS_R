@@ -2,6 +2,7 @@
 # Association des spectres NIRS (CRB Gamet) avec les données biochimiques
 # des populations françaises via les codes PPS
 # Explore les traits biochimuqes du fichier table_mean_adjusted_NIRS_biochimie_res_rowcol_GxE.csv
+# predictions bioch de Limagrain en 2002 (B. Gouesnard), fichier transmis par S Nicolas (GQE)
 
 library(readxl)
 library(ggplot2)
