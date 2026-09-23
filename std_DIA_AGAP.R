@@ -45,8 +45,7 @@ library(prospectr)
 # X1 : Spectres sur le spectromètre Master (référence) 
 X1 <- xAGAPr 
 # X2 : Spectres sur le spectromètre Slave (à corriger) 
-X2 <- 1/exp(xDIAr)
-# X2 <- xDIAr
+X2 <- xDIAr
 
 # -----------------------------------------------------------------------------
 # STEP 1 : Sélection des échantillons d'apprentissage (Kennard-Stone)
