@@ -21,7 +21,8 @@ dat=read_xlsx("/home/ecarnot/Documents/INRA/Projets/MalaNIRS_Mais/ech_DIASCOPE/M
 dat$Plot=as.numeric(substr(dat$Plot, 6, nchar(dat$Plot)))  
 
 dat=merge(sp,dat,by="Plot")
-traits_bioch=colnames(dat)[60:104] #[c(1,4:6,8:104)]
+traits_bioch=colnames(dat)[99] #[c(1,4:6,8:104)]
+dat$MLD_DateH=as.Date(dat$MLD_DateH, format="%d/%m/%Y")
 
 n_traits <- length(traits_bioch)
 ncols   <- 4
@@ -37,15 +38,20 @@ for (trait in traits_bioch) {
   if (length(unique(dat[[trait]])) == 1 || length(which(!iout)) < 20) {
     cat("Trait", trait, ": no variance, skipping.\n")
     next
-
   }
+  
   recap[[trait]] <- vitaspec_preCV(dat$x[!iout, ], as.numeric(dat[[trait]][!iout]), list_pre = list_pre, ncomp = 20, titl = trait,
                                    plotLV = TRUE, plotYY = TRUE, verb = FALSE)
 }
 dev.off()
 
 
-
+# Test avec autres spectres
+pprot=rbind(list('red',c(500,10,1)),list('snv',''))
+fm <- plskern(pre(dat$x[!iout, ],pprot), as.numeric(dat[[trait]][!iout]), nlv = 14)
+xnew=naturaspec2df("/home/ecarnot/Documents/INRA/Projets/MalaNIRS_Mais/ech_DIASCOPE/MLD24DIASCOPE/test/")
+pred=predict(fm, pre(xnew$x,pprot), ncomp = 14)
+plot(pred$pred, as.numeric(dat[[trait]][!iout]), xlab="Predicted", ylab="Observed", main=paste("Trait:", trait))
 
 stop()
 
