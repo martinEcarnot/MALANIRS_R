@@ -12,6 +12,8 @@ source("/home/ecarnot/Documents/INRA/Projets/VitaSPEC/vitaspec_R/vitaspec_preCV.
 # Read AGAP
 xAGAP=naturaspec2df("/home/ecarnot/Documents/INRA/Projets/MalaNIRS_Mais/ech_DIASCOPE/MLD24DIASCOPE/")
 xAGAP$Plot=as.numeric(str_extract(rownames(xAGAP), "(?<=_)\\d+(?=_)"))
+xAGAP=xAGAP[xAGAP$x[,500]>0.2,]  # Remove spectra with low reflectance at 830nm]
+# xAGAP$x=xAGAP$x[,51:750]  # Select wavelength range 400-1000nm
 sp=aggregate(xAGAP,by=list(xAGAP$Plot), mean)
 sp$x=as.matrix(aggregate(xAGAP$x, list(xAGAP$Plot), mean)[,-1])
 sp$Plot=sp$Group.1; sp=sp[,-1]
@@ -21,7 +23,7 @@ dat=read_xlsx("/home/ecarnot/Documents/INRA/Projets/MalaNIRS_Mais/ech_DIASCOPE/M
 dat$Plot=as.numeric(substr(dat$Plot, 6, nchar(dat$Plot)))  
 
 dat=merge(sp,dat,by="Plot")
-traits_bioch=colnames(dat)[99] #[c(1,4:6,8:104)]
+traits_bioch=colnames(dat)[c(1,4:6,8:104)]
 dat$MLD_DateH=as.Date(dat$MLD_DateH, format="%d/%m/%Y")
 
 n_traits <- length(traits_bioch)
@@ -34,26 +36,39 @@ pdf("calib/calibration_MLD24_spAGAP.pdf", width = ncols * 4, height = nrows * 4)
 par(mfrow = c(nrows, ncols))
 for (trait in traits_bioch) {
   cat("R2 CV :", trait, "\n")
-  iout=is.na(dat[[trait]])
-  if (length(unique(dat[[trait]])) == 1 || length(which(!iout)) < 20) {
+  iok=which(!is.na(dat[[trait]]))
+  if (length(unique(dat[[trait]])) == 1 || length(iok) < 20) {
     cat("Trait", trait, ": no variance, skipping.\n")
     next
   }
-  
-  recap[[trait]] <- vitaspec_preCV(dat$x[!iout, ], as.numeric(dat[[trait]][!iout]), list_pre = list_pre, ncomp = 20, titl = trait,
+  iok=intersect(iok, which(abs(scale(dat[[trait]]))<5))
+  recap[[trait]] <- vitaspec_preCV(dat$x[iok, ], as.numeric(dat[[trait]][iok]), list_pre = list_pre, ncomp = 20, titl = trait,
                                    plotLV = TRUE, plotYY = TRUE, verb = FALSE)
 }
 dev.off()
 
+stop()
 
-# Test avec autres spectres
+
+
+
+
+
+dat2=as.data.frame(lapply(dat[,-2],FUN = as.numeric))
+dat2=dat2[,!is.na(colMeans(dat2,na.rm = TRUE))]
+
+# Test avec autres spectres (déplacer des fichiers spectres dans test)
 pprot=rbind(list('red',c(500,10,1)),list('snv',''))
 fm <- plskern(pre(dat$x[!iout, ],pprot), as.numeric(dat[[trait]][!iout]), nlv = 14)
 xnew=naturaspec2df("/home/ecarnot/Documents/INRA/Projets/MalaNIRS_Mais/ech_DIASCOPE/MLD24DIASCOPE/test/")
-pred=predict(fm, pre(xnew$x,pprot), ncomp = 14)
-plot(pred$pred, as.numeric(dat[[trait]][!iout]), xlab="Predicted", ylab="Observed", main=paste("Trait:", trait))
+xnew$Plot=as.numeric(str_extract(rownames(xnew), "(?<=_)\\d+(?=_)"))
+dat=read_xlsx("/home/ecarnot/Documents/INRA/Projets/MalaNIRS_Mais/ech_DIASCOPE/MineLandDiv_T1.2_Trials 2024_INRAE Mauguio_20240729.xlsx", sheet="Data")
+dat$Plot=as.numeric(substr(dat$Plot, 6, nchar(dat$Plot)))  
+datnew=merge(xnew,dat,by="Plot")
+pred=predict(fm, pre(datnew$x,pprot), ncomp = 14)
+plot(pred$pred, datnew[[trait]], xlab="Predicted", ylab="Observed", main=paste("Trait:", trait))
 
-stop()
+
 
 ## From 20 ring test samples measured for biochemistry at CREA, try a calibration
 
