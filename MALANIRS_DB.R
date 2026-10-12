@@ -22,7 +22,9 @@ check_sp(smpGQE$`MRS / EVA Code`,spGQE$code)
 
 # rownames(spGQE$x)=paste0("FRA_",rownames(spGQE$x))
 rownames(spGQE$x)=rownames(spGQE$x)
-write.csv(spGQE$x, "/home/ecarnot/Documents/INRA/Projets/MalaNIRS_Mais/smpl_2025/NIRS_GQE2025.csv", row.names = TRUE, quote = FALSE)
+sp2csv=cbind(rep("GQE",nrow(spGQE$x)),spGQE$ech,spGQE$x)
+colnames(sp2csv)[1:2]=c("Origin","Bag_Code")
+# write.csv(spGQE$x, "/home/ecarnot/Documents/INRA/Projets/MalaNIRS_Mais/smpl_2025/NIRS_GQE2025.csv", row.names = TRUE, quote = FALSE)
 
 #CREA
 f="/home/ecarnot/Documents/INRA/Projets/MalaNIRS_Mais/smpl_2025/List_SMTA_28.10.2025_MALANIRS_CREA_INRAE.xlsx"
@@ -36,25 +38,29 @@ check_sp(smpCREA$`CREA-Landrace Genebank short CODE`,spCREA$code)
 
 # rownames(spCREA$x)=paste0("ITA_",rownames(spCREA$x))
 rownames(spCREA$x)=rownames(spCREA$x)
-write.csv(spCREA$x, "/home/ecarnot/Documents/INRA/Projets/MalaNIRS_Mais/smpl_2025/NIRS_CREA2025.csv", row.names = TRUE, quote = FALSE)
+# write.csv(spCREA$x, "/home/ecarnot/Documents/INRA/Projets/MalaNIRS_Mais/smpl_2025/NIRS_CREA2025.csv", row.names = TRUE, quote = FALSE)
+sp2csv=rbind(sp2csv, cbind(rep("CREA",nrow(spCREA$x)),substr(row.names(spCREA$x),1,nchar(row.names(spCREA$x))-6),spCREA$x))
 
 # Serbia
 spSerb=naturaspec2df(paste0(sourcef,"Serbie/"))
 rownames(spSerb$x)=paste0("SRB_",rownames(spSerb$x))
 rownames(spSerb$x)[substr(rownames(spSerb$x),5,7)=="ATA"]=gsub("SRB","TUR",rownames(spSerb$x)[substr(rownames(spSerb$x),5,7)=="ATA"])
-write.csv(spSerb$x, "/home/ecarnot/Documents/INRA/Projets/MalaNIRS_Mais/smpl_2025/NIRS_Serbia2025.csv", row.names = TRUE, quote = FALSE)
+# write.csv(spSerb$x, "/home/ecarnot/Documents/INRA/Projets/MalaNIRS_Mais/smpl_2025/NIRS_Serbia2025.csv", row.names = TRUE, quote = FALSE)
+sp2csv=rbind(sp2csv, cbind(rep("Serbia",nrow(spSerb$x)),substr(rownames(spSerb$x),1,nchar(rownames(spSerb$x))-6),spSerb$x))
 
 
 # Portugal
 spPor=naturaspec2df(paste0(sourcef,"Portugal/"))
 rownames(spPor$x)=paste0("PRT_",rownames(spPor$x))
-write.csv(spPor$x, "/home/ecarnot/Documents/INRA/Projets/MalaNIRS_Mais/smpl_2025/NIRS_Portugal2025.csv", row.names = TRUE, quote = FALSE)
+# write.csv(spPor$x, "/home/ecarnot/Documents/INRA/Projets/MalaNIRS_Mais/smpl_2025/NIRS_Portugal2025.csv", row.names = TRUE, quote = FALSE)
+sp2csv=rbind(sp2csv, cbind(rep("Portugal",nrow(spPor$x)),substr(rownames(spPor$x),1,nchar(rownames(spPor$x))-6),spPor$x))
+
 
 # Roumania
 spRom=naturaspec2df(paste0(sourcef,"Roumanie/"))
 rownames(spRom$x)=paste0("ROU_",rownames(spRom$x))
-write.csv(spRom$x, "/home/ecarnot/Documents/INRA/Projets/MalaNIRS_Mais/smpl_2025/NIRS_Romania2025.csv", row.names = TRUE, quote = FALSE)
-
+# write.csv(spRom$x, "/home/ecarnot/Documents/INRA/Projets/MalaNIRS_Mais/smpl_2025/NIRS_Romania2025.csv", row.names = TRUE, quote = FALSE)
+sp2csv=rbind(sp2csv, cbind(rep("Romania",nrow(spRom$x)),substr(rownames(spRom$x),1,nchar(rownames(spRom$x))-6),spRom$x))
 
 # CRB_Gamet
 f_crb="/home/ecarnot/Documents/INRA/Projets/MalaNIRS_Mais/smpl_2025/pop_francaise/feuille prélèvement ZEA-DST2025-001 Compan (Malanirs).xlsx"
@@ -75,8 +81,14 @@ new_rn=rn
 new_rn[is_num]=ifelse(is.na(mapped), rn[is_num], paste0(mapped, suffix[is_num]))
 rownames(spCRB$x)=new_rn
 
-write.csv(spCRB$x, "/home/ecarnot/Documents/INRA/Projets/MalaNIRS_Mais/smpl_2025/NIRS_CRBGamet2025.csv", row.names = TRUE, quote = FALSE)
+# write.csv(spCRB$x, "/home/ecarnot/Documents/INRA/Projets/MalaNIRS_Mais/smpl_2025/NIRS_CRBGamet2025.csv", row.names = TRUE, quote = FALSE)
+sp2csv=rbind(sp2csv, cbind(rep("CRB_Gamet",nrow(spCRB$x)),substr(rownames(spCRB$x),1,nchar(rownames(spCRB$x))-6),spCRB$x))
 
+
+write.csv(sp2csv, "/home/ecarnot/Documents/INRA/Projets/MalaNIRS_Mais/smpl_2025/NIRS_MALANIRS2025.csv", row.names = FALSE, quote = FALSE)
+
+
+stop()
 
 # CRB_Gamet Brimrose Single Kernel
 brim_raw <- read.table(

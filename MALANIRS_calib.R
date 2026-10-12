@@ -13,7 +13,7 @@ source("/home/ecarnot/Documents/INRA/Projets/VitaSPEC/vitaspec_R/vitaspec_preCV.
 xAGAP=naturaspec2df("/home/ecarnot/Documents/INRA/Projets/MalaNIRS_Mais/ech_DIASCOPE/MLD24DIASCOPE/")
 xAGAP$Plot=as.numeric(str_extract(rownames(xAGAP), "(?<=_)\\d+(?=_)"))
 xAGAP=xAGAP[xAGAP$x[,500]>0.2,]  # Remove spectra with low reflectance at 830nm]
-# xAGAP$x=xAGAP$x[,51:750]  # Select wavelength range 400-1000nm
+xAGAP$x=xAGAP$x[,51:750]  # Select wavelength range 400-1000nm
 sp=aggregate(xAGAP,by=list(xAGAP$Plot), mean)
 sp$x=as.matrix(aggregate(xAGAP$x, list(xAGAP$Plot), mean)[,-1])
 sp$Plot=sp$Group.1; sp=sp[,-1]
@@ -32,9 +32,9 @@ nrows   <- ceiling(n_traits / ncols)
 recap <- vector("list", n_traits)
 names(recap) <- traits_bioch
 
-pdf("calib/calibration_MLD24_spAGAP.pdf", width = ncols * 4, height = nrows * 4)
+pdf("calib/calibration_MLD24_spAGAP_400-1000nm.pdf",width=ncols*4,height=nrows*4)  # calibration_MLD24_spAGAP.pdf
 par(mfrow = c(nrows, ncols))
-for (trait in traits_bioch) {
+for (trait in traits_bioch[93:96]){  #) {
   cat("R2 CV :", trait, "\n")
   iok=which(!is.na(dat[[trait]]))
   if (length(unique(dat[[trait]])) == 1 || length(iok) < 20) {
@@ -42,7 +42,7 @@ for (trait in traits_bioch) {
     next
   }
   iok=intersect(iok, which(abs(scale(dat[[trait]]))<5))
-  recap[[trait]] <- vitaspec_preCV(dat$x[iok, ], as.numeric(dat[[trait]][iok]), list_pre = list_pre, ncomp = 20, titl = trait,
+  recap[[trait]] <- vitaspec_preCV(dat$x[iok, ], as.numeric(dat[[trait]][iok]), list_pre = list_pre, ncomp = 30, titl = trait,
                                    plotLV = TRUE, plotYY = TRUE, verb = FALSE)
 }
 dev.off()
